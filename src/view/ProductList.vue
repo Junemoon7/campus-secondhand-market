@@ -21,12 +21,13 @@
         <label for="email" class="block text-sm font-medium leading-6 text-gray-900">学号</label>
         <div class="mt-2">
           <input
-            v-model="inputName"
+            v-model="search"
             type="email"
             name="email"
             id="email"
             class="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder="请输入学生姓名"
+            @click="SelectStuName"
             aria-describedby="email-description" />
         </div>
         <!-- <p class="mt-2 text-sm text-gray-500" id="email-description">请输入学号</p> -->
@@ -39,22 +40,32 @@
             type="email"
             name="email"
             id="email"
+            @click="SelectStuID"
+            v-model="inputId"
             class="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder="请输入学生学号"
             aria-describedby="email-description" />
         </div>
+
         <!-- <p class="mt-2 text-sm text-gray-500" id="email-description">We'll only use this for spam.</p> -->
       </div>
-
+      <div bg="dark:(dark-300) light-700" mr-2 border="1 light-900 dark:(dark-700)" rounded relative flex items-center>
+        <select v-model="filterBy" px-8 bg-transparent>
+          <option bg="dark:(dark-300) light-700" value="both">Full</option>
+          <option bg="dark:(dark-300) light-700" value="name">name</option>
+          <option bg="dark:(dark-300) light-700" value="titile">titile</option>
+        </select>
+      </div>
       <div class="sm:col-span-2">
         <label for="location" class="block text-sm font-medium leading-6 text-gray-900">状态</label>
         <select
+          v-model="StoreSate"
           id="location"
           name="location"
           class="mt-2 block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-          <option>审核中</option>
-          <option selected="">已通过</option>
-          <option>未通过</option>
+          <option value="审核中">审核中</option>
+          <option value="已通过">已通过</option>
+          <option value="已通过">未通过</option>
         </select>
       </div>
     </div>
@@ -75,28 +86,28 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
-              <tr v-for="person in people" :key="person.email">
+              <tr v-for="person in results" :key="person.item.email">
                 <td class="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                   <div class="flex items-center">
                     <div class="h-11 w-11 flex-shrink-0">
-                      <img class="h-11 w-11 rounded-full" :src="person.image" alt="" />
+                      <img class="h-11 w-11 rounded-full" :src="person.item.image" alt="" />
                     </div>
                     <div class="ml-4">
-                      <div class="font-medium text-gray-900">{{ person.name }}</div>
-                      <div class="mt-1 text-gray-500">{{ person.email }}</div>
+                      <div class="font-medium text-gray-900">{{ person.item.name }}</div>
+                      <div class="mt-1 text-gray-500">{{ person.item.email }}</div>
                     </div>
                   </div>
                 </td>
                 <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                  <div class="text-gray-900">{{ person.title }}</div>
-                  <div class="mt-1 text-gray-500">{{ person.department }}</div>
+                  <div class="text-gray-900">{{ person.item.title }}</div>
+                  <div class="mt-1 text-gray-500">{{ person.item.department }}</div>
                 </td>
 
                 <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                   <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">审核中</span>
                 </td>
 
-                <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{{ person.role }}</td>
+                <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{{ person.item.role }}</td>
                 <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                   <button
                     type="button"
@@ -111,19 +122,20 @@
       </div>
     </div>
   </div>
-  <div v-for="result in results" :key="result.item.name" py-2>
+  <!-- <div v-for="result in results" :key="result.item.name" py-2 v-if="!isSearch">
     <div flex flex-col>
       <span> {{ result.item.name }} {{ result.item }} </span>
       <span text-sm opacity-50> Score Index: {{ result.refIndex }} </span>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
 import { PlusIcon } from '@heroicons/vue/20/solid'
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import Fuse from 'fuse.js'
 import { useFuse } from '@vueuse/integrations/useFuse'
+import { UseFuseOptions } from '@vueuse/integrations/useFuse'
 const people = [
   {
     name: 'Lindsay Walton',
@@ -142,8 +154,67 @@ const people = [
     image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   },
 ]
-const inputName = ref('Lindsay')
-const { results } = useFuse(inputName, people)
+// const isSearch = ref(true)
+// const filterBy = ref('')
+// const keys = computed(() => {
+//   if (filterBy.value === 'StudentName') return ['title']
+//   else if (filterBy.value === 'StudentId') return ['name']
+//   else return ['title', 'name']
+// })
+// function SelectStuName() {
+//   filterBy.value = 'StudentName'
+//   console.log(keys.value)
+// }
+// function SelectStuID() {
+//   filterBy.value = 'StudentId'
+//   console.log(keys.value)
+// }
 
-console.log(results)
+// const fuseOptions = ref({})
+// const fuse = ref(new Fuse(people, fuseOptions.value))
+// watch(keys, () => {
+//   fuseOptions.value = {
+//     keys: keys,
+//   }
+//   fuse.value = new Fuse(people, fuseOptions.value)
+//   console.log(fuseOptions.value)
+// })
+
+// const inputName = ref('')
+// const inputId = ref('')
+
+// const results = ref(fuse.value.search(keys.value[0] == 'title' ? inputName.value : inputId.value))
+// watch(inputName, () => {
+//   results.value = fuse.value.search(keys.value[0] == 'title' ? inputName.value : inputId.value)
+// })
+// watch(inputId, () => {
+//   results.value = fuse.value.search(keys.value[0] == 'title' ? inputName.value : inputId.value)
+// })
+// watch(results, () => {
+//   isSearch.value = !isSearch.value
+// })
+
+const search = ref('')
+const StoreSate = ref('')
+const filterBy = ref('both')
+const keys = computed(() => {
+  if (filterBy.value === 'name') return ['name']
+  else if (filterBy.value === 'title') return ['title']
+  else return ['name', 'title']
+})
+
+const exactMatch = ref(false)
+const isCaseSensitive = ref(false)
+const matchAllWhenSearchEmpty = ref(true)
+
+const options = computed(() => ({
+  fuseOptions: {
+    keys: keys.value,
+    isCaseSensitive: isCaseSensitive.value,
+    threshold: exactMatch.value ? 0 : undefined,
+  },
+  matchAllWhenSearchEmpty: matchAllWhenSearchEmpty.value,
+}))
+
+const { results } = useFuse(search, people, options)
 </script>
