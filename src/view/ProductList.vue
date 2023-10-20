@@ -27,35 +27,34 @@
             id="email"
             class="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder="请输入学生姓名"
-            @click="SelectStuName"
             aria-describedby="email-description" />
         </div>
         <!-- <p class="mt-2 text-sm text-gray-500" id="email-description">请输入学号</p> -->
       </div>
 
-      <div class="sm:col-span-1">
-        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">姓名</label>
-        <div class="mt-2">
-          <input
-            type="email"
-            name="email"
-            id="email"
-            @click="SelectStuID"
-            v-model="inputId"
-            class="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            placeholder="请输入学生学号"
-            aria-describedby="email-description" />
-        </div>
-
-        <!-- <p class="mt-2 text-sm text-gray-500" id="email-description">We'll only use this for spam.</p> -->
-      </div>
       <div bg="dark:(dark-300) light-700" mr-2 border="1 light-900 dark:(dark-700)" rounded relative flex items-center>
-        <select v-model="filterBy" px-8 bg-transparent>
-          <option bg="dark:(dark-300) light-700" value="both">Full</option>
+        <svg
+          class="h-6 w-6 text-gray-500"
+          fill="none"
+          viewBox="0 0 24 24 block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        <select
+          v-model="filterBy"
+          px-8
+          bg-transparent
+          class="mt-2 block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+          <option bg="dark:(dark-300) light-700" value="both" class="">Full</option>
           <option bg="dark:(dark-300) light-700" value="name">name</option>
-          <option bg="dark:(dark-300) light-700" value="titile">titile</option>
+          <option bg="dark:(dark-300) light-700" value="title">title</option>
         </select>
       </div>
+
       <div class="sm:col-span-2">
         <label for="location" class="block text-sm font-medium leading-6 text-gray-900">状态</label>
         <select
