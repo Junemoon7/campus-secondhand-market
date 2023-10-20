@@ -202,7 +202,7 @@ const keys = computed(() => {
   else if (filterBy.value === 'title') return ['title']
   else return ['name', 'title']
 })
-
+const test = ref('')
 const exactMatch = ref(false)
 const isCaseSensitive = ref(false)
 const matchAllWhenSearchEmpty = ref(true)
