@@ -188,7 +188,7 @@
         <span class="dialog-footer flex justify-evenly">
           <button
             type="button"
-            @click="dialogFormEdit = false"
+            @click="handeldiglogbutton(form)"
             v-if="form.state == '2' || form.state == '0'"
             :class="
               form.state == '2'
@@ -221,8 +221,8 @@ import { computed, ref, watch, reactive } from 'vue'
 import { useFuse } from '@vueuse/integrations/useFuse'
 import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
-import { affixProps } from 'element-plus'
 import axios from 'axios'
+import { ElMessage, ElMessageBox } from 'element-plus'
 const dialogFormEdit = ref(false)
 const form = ref({
   name: '',
@@ -238,6 +238,32 @@ function handledialog(state) {
   form.value = state
   console.log(form.value)
   dialogFormEdit.value = true
+}
+const handeldiglogbutton = (form) => {
+  ElMessageBox.confirm('proxy will permanently delete the file. Continue?', 'Warning', {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Cancel',
+    type: 'warning',
+  })
+    .then(() => {
+      const data = new FormData()
+      data.append('commodityId', form.commodityImgList[0].commodityId)
+      data.append('title', form.title)
+      data.append('userId', form.userId)
+      axios.post('api/commodity/delCommodity', data)
+
+      console.log(form.commodityImgList[0].commodityId + form.title + form.userId)
+      ElMessage({
+        type: 'success',
+        message: '删除完成',
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled',
+      })
+    })
 }
 const formLabelWidth = '140px'
 
