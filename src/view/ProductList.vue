@@ -126,7 +126,9 @@
                     <!-- <div class="h-11 w-11 flex-shrink-0">
                     <img class="h-11 w-11 rounded-full" alt="" />
                   </div> -->
-                    {{ person.item.cateName }}
+                    <div class="flex">
+                      <img :src="Imageicon.find((item) => item.cateName == person.item.cateName).cateIcon" alt="" class="mt-0.5 pr-1 h-5 text-gray-500" /> <span>{{ person.item.cateName }}</span>
+                    </div>
                   </td>
                   <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                     <button
@@ -137,9 +139,11 @@
                     </button>
 
                     <button
+                      v-if="person.item.state == '0' || person.item.state == '2'"
+                      @click="handeldiglogbutton(person.item)"
                       type="button"
                       class="rounded-md bg-rose-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
-                      下架
+                      {{ person.item.state == '0' ? '下架' : person.item.state == '2' ? '上架' : '' }}
                     </button>
                   </td>
                 </tr>
@@ -170,12 +174,9 @@
           </td></el-form-item
         >
         <el-form-item label="图片" label-width="140px">
-          <td class="whitespace-nowrap px-3 text-sm text-black">
-            <div class="text-gray-900">
-              {{ form.coverImage }}
-            </div>
-          </td></el-form-item
-        >
+          <td class="whitespace-nowrap px-3 text-sm text-black" v-for="item in form.commodityImgList">
+            <img :src="'http://210.45.92.232:8080/' + item.imgSrc" alt="" class="h-60 mt-5" /></td
+        ></el-form-item>
         <el-form-item label="上传时间" label-width="140px">
           <td class="whitespace-nowrap px-3 text-sm text-black">
             <div class="text-gray-900">
@@ -240,33 +241,64 @@ function handledialog(state) {
   dialogFormEdit.value = true
 }
 const handeldiglogbutton = (form) => {
-  ElMessageBox.confirm('proxy will permanently delete the file. Continue?', 'Warning', {
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Cancel',
-    type: 'warning',
-  })
-    .then(() => {
-      const data = new FormData()
-      data.append('commodityId', form.commodityImgList[0].commodityId)
-      data.append('title', form.title)
-      data.append('userId', form.userId)
-      axios.post('api/commodity/delCommodity', data)
-
-      console.log(form.commodityImgList[0].commodityId + form.title + form.userId)
-      ElMessage({
-        type: 'success',
-        message: '删除完成',
-      })
+  if (form.state == '0') {
+    ElMessageBox.confirm('你确定要下架该商品吗？', '警告', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
     })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: 'Delete canceled',
+      .then(() => {
+        const data = new FormData()
+        data.append('commodityId', form.commodityImgList[0].commodityId)
+        data.append('title', form.title)
+        data.append('userId', form.userId)
+        axios.post('api/commodity/delCommodity', data)
+        ElMessage({
+          type: 'success',
+          message: '删除完成',
+        })
       })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '已取消删除',
+        })
+      })
+  } else {
+    ElMessageBox.confirm('你确定要上架该商品吗？', '警告', {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
     })
+      .then(() => {
+        const data = new FormData()
+        data.append('id', form.id)
+        data.append('state', 0)
+        axios.post('api/commodity/updateCommodityState', data)
+        ElMessage({
+          type: 'success',
+          message: '上架完成',
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '已取消上架',
+        })
+      })
+  }
 }
 const formLabelWidth = '140px'
-
+const Imageicon = ref([])
+const getImage = () => {
+  axios.get('api/category/getAllCategory').then((res) => {
+    for (const item of res.data) {
+      Imageicon.value.push(item)
+    }
+    console.log(Imageicon)
+  })
+}
+getImage()
 const currentPage1 = ref(1)
 const Form = new FormData()
 Form.append('page', currentPage1.value.toString())

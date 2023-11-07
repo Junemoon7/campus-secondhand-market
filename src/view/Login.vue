@@ -48,6 +48,11 @@
 <script setup>
 import axios from 'axios'
 import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ElMessage, alertProps } from 'element-plus'
+import { COOKIE_NAME_PRERENDER_BYPASS } from 'next/dist/server/api-utils'
+const route = useRoute()
+const router = useRouter()
 const username = ref('')
 const password = ref('')
 function Login() {
@@ -79,11 +84,44 @@ function Login() {
   let formData = new FormData()
   formData.append('username', username.value)
   formData.append('password', password.value)
+  if (username.value == '' || password.value == '') {
+    ElMessage.error('用户名或密码不能为空')
+    return
+  }
   fetch('api/login', {
     method: 'POST',
     body: formData,
-  }).then((res) => {
-    console.log(res)
   })
+    .then(async (res) => {
+      return res.json()
+    })
+    .then((res) => {
+      console.log(res)
+      if (res.success) {
+        router.push('/')
+        //use cookie to store a token to store the username and password of the from
+        document.cookie = 'username=' + username.value
+        document.cookie = 'password=' + password.value
+        //set a expire 7 days for the cookie
+        let date = new Date()
+        date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000)
+        document.cookie = 'expires=' + date.toUTCString()
+        ElMessage.success('登录成功')
+      } else {
+        ElMessage.error('用户名或密码错误')
+      }
+    })
+    .catch((err) => {
+      console.log(err)
+      ElMessage.error('网络错误')
+    })
+}
+username.value = getCookie('username')
+password.value = getCookie('password')
+function getCookie(name) {
+  let arr,
+    reg = new RegExp('(^| )' + name + '=([^;]*)(;|$)')
+  if ((arr = document.cookie.match(reg))) return unescape(arr[2])
+  else return null
 }
 </script>

@@ -1,15 +1,15 @@
 <template>
   <div>
     <ul role="list" class="divide-y divide-gray-100">
-      <li v-for="person in people" :key="person.email" class="relative py-5 hover:bg-gray-50 cursor-pointer" @click="dialogFormVisible = true">
+      <li v-for="image in Imageicon" :key="image.id" class="relative py-5 hover:bg-gray-50 cursor-pointer" @click="dialogFormVisible = true">
         <div class="px-4 sm:px-6 lg:px-8">
           <div class="mx-auto flex max-w-4xl justify-between gap-x-6">
             <div class="flex gap-x-4">
-              <img class="h-12 w-12 flex-none rounded-full bg-gray-50" :src="person.imageUrl" alt="" />
+              <img class="h-12 w-12 flex-none rounded-full bg-gray-50" :src="image.cateIcon" alt="" />
               <div class="min-w-0 flex h-full justify-center items-center">
                 <p class="text-sm font-semibold leading-6 text-gray-900">
                   <span class="absolute inset-x-0 -top-px bottom-0" />
-                  {{ person.name }}
+                  {{ image.cateName }}
                 </p>
               </div>
             </div>
@@ -79,6 +79,7 @@ import { reactive, ref } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { PlusIcon } from '@heroicons/vue/20/solid'
+import axios from 'axios'
 const dialogTableVisible = ref(false)
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
@@ -147,7 +148,16 @@ const people = [
   },
 ]
 const imageUrl = ref('')
-
+const Imageicon = ref([])
+const getImage = () => {
+  axios.get('api/category/getAllCategory').then((res) => {
+    for (const item of res.data) {
+      Imageicon.value.push(item)
+    }
+    console.log(Imageicon)
+  })
+}
+getImage()
 const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
   imageUrl.value = URL.createObjectURL(uploadFile.raw!)
 }
