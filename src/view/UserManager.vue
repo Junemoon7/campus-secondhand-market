@@ -5,6 +5,33 @@
       <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none"></div>
     </div>
     <div class="mt-8 flow-root">
+      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">搜索</label>
+      <div class="flex">
+        <div class="mt-2">
+          <input
+            @keyup.enter="Searchdata"
+            v-model="search"
+            type="text"
+            name="email"
+            id="email"
+            class="block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            placeholder="请输入参数"
+            aria-describedby="email-description" />
+        </div>
+        <button
+          @click="Searchdata"
+          type="submit"
+          class="rounded-md bg-indigo-600 px-2.5 ml-2 mt-2 h-8 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
+          查询
+        </button>
+        <button
+          @click="getUserdata"
+          type="submit"
+          class="rounded-md bg-red-600 px-2.5 mt-2 h-8 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
+          重置
+        </button>
+      </div>
+
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
           <table class="min-w-full divide-y divide-gray-300">
@@ -49,6 +76,7 @@
                 <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">{{ item.role }}</td>
                 <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                   <button
+                    @click="sendMsg(item)"
                     type="button"
                     class="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
                     发消息
@@ -60,24 +88,63 @@
         </div>
       </div>
     </div>
-    <el-pagination v-model:current-page="currentpage" :page-size="20" :pager-count="11" layout="prev, pager, next" :total="1000" @current-change="getUserdata" />
+    <el-pagination v-if="showpagination" v-model:current-page="currentpage" :page-size="20" :pager-count="11" layout="prev, pager, next" :total="1000" @current-change="getUserdata" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
+import { useFuse } from '@vueuse/integrations/useFuse'
 const currentpage = ref(1)
 const form = new FormData()
-
+const search = ref('')
 const userList = ref('')
+const showpagination = ref(true)
 async function getUserdata() {
   form.delete('page')
   form.delete('limit')
+  form.delete('openid')
   form.append('page', currentpage.value)
   form.append('limit', '10')
   axios.post('/api/user/userList', form).then((res) => (userList.value = res.data.data))
   console.log(userList)
+  showpagination.value = true
 }
 getUserdata()
+// const allUsers = ref('')
+// const allform = new FormData()
+// allform.append('page', '1')
+// allform.append('limit', 10)
+// allform.append('openid', '21045051')
+// axios
+//   .post('/api/user/userList', allform)
+//   .then((res) => (allUsers.value = res.data.data))
+//   .then(() => console.log(allUsers))
+// const exactMatch = ref(false)
+// const isCaseSensitive = ref(false)
+// const matchAllWhenSearchEmpty = ref(true)
+// const options = computed(() => ({
+//   fuseOptions: {
+//     keys: ['nickName', 'openid'],
+//     isCaseSensitive: isCaseSensitive.value,
+//     threshold: exactMatch.value ? 0 : undefined,
+//   },
+//   matchAllWhenSearchEmpty: matchAllWhenSearchEmpty.value,
+// }))
+// const { results } = useFuse(search, userList, options)
+// console.log(results)
+function Searchdata() {
+  form.delete('openid')
+  form.delete('page')
+  form.delete('limit')
+  form.append('page', '1')
+  form.append('limit', '10')
+  form.append('openid', search.value)
+  axios.post('/api/user/userList', form).then((res) => (userList.value = res.data.data))
+  showpagination.value = false
+}
+function sendMsg(item) {
+  console.log(item)
+}
 </script>
