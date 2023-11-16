@@ -80,7 +80,6 @@ import { UploadFilled } from '@element-plus/icons-vue'
 import { CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { PlusIcon } from '@heroicons/vue/20/solid'
 import axios from 'axios'
-const dialogTableVisible = ref(false)
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
 
@@ -94,59 +93,7 @@ const form = reactive({
   resource: '',
   desc: '',
 })
-const people = [
-  {
-    name: '全部',
-    role: 'Co-Founder / CEO',
-    imageUrl: 'https://pick-mini-applet.oss-cn-hangzhou.aliyuncs.com/admin/icons/all.png',
-    href: '#',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: '生活',
-    email: 'michael.foster@example.com',
-    role: 'Co-Founder / CTO',
-    imageUrl: 'https://pick-mini-applet.oss-cn-hangzhou.aliyuncs.com/admin/icons/live.png',
-    href: '#',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: '服装',
-    email: 'dries.vincent@example.com',
-    role: 'Business Relations',
-    imageUrl: 'https://pick-mini-applet.oss-cn-hangzhou.aliyuncs.com/admin/icons/fuzhuang.png',
-    href: '#',
-    lastSeen: null,
-  },
-  {
-    name: '食物',
-    email: 'lindsay.walton@example.com',
-    role: 'Front-end Developer',
-    imageUrl: 'https://pick-mini-applet.oss-cn-hangzhou.aliyuncs.com/admin/icons/food.png',
-    href: '#',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: '数码',
-    email: 'courtney.henry@example.com',
-    role: 'Designer',
-    imageUrl: 'https://pick-mini-applet.oss-cn-hangzhou.aliyuncs.com/admin/icons/shuma.png',
-    href: '#',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: '电器',
-    email: 'tom.cook@example.com',
-    role: 'Director of Product',
-    imageUrl: 'https://pick-mini-applet.oss-cn-hangzhou.aliyuncs.com/admin/icons/dianqi.png',
-    href: '#',
-    lastSeen: null,
-  },
-]
+
 const imageUrl = ref('')
 const Imageicon = ref([])
 const getImage = () => {

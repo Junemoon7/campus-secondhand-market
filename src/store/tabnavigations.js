@@ -3,7 +3,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia'
 export const useTabStore = defineStore({
   id: 'tab',
   state: () => ({
-    options: [{ route: '/', name: 'Home' }],
+    options: [{ route: '/', name: '主页' }],
     activeIndex: '/',
   }),
   getters: {},

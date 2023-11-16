@@ -13,15 +13,18 @@
       <el-menu-item index="1-2"> <router-link tag="span" to="/ProductList" class="block w-full">商品列表</router-link></el-menu-item>
       <el-menu-item index="1-3"><router-link tag="span" to="/selfproductList" class="block w-full">自营商品</router-link></el-menu-item>
       <el-menu-item index="1-4"><router-link tag="span" to="/class" class="block w-full">商品分类</router-link></el-menu-item>
-      <el-menu-item index="1-5">求购中心</el-menu-item>
+      <el-menu-item index="1-5"><router-link tag="span" to="/requireList" class="block w-full">求购中心</router-link></el-menu-item>
     </el-sub-menu>
     <el-menu-item index="2">
       <el-icon><User /></el-icon>
       <router-link tag="span" to="/UserManager" class="block w-full">用户管理</router-link>
     </el-menu-item>
+
     <el-menu-item index="3">
       <el-icon><Phone /></el-icon>
-      <router-link tag="span" to="/Report" class="block w-full">举报信息</router-link>
+      <el-badge is-dot class="w-full" :hidden="isHidden">
+        <router-link tag="span" to="/Report" class="block w-full">举报信息</router-link>
+      </el-badge>
     </el-menu-item>
   </el-menu>
 </template>
@@ -30,6 +33,9 @@
 import { User, Goods, Phone } from '@element-plus/icons-vue'
 import { useTabStore } from '../store/tabnavigations'
 import { useRouter, useRoute } from 'vue-router'
+import { ref } from 'vue'
+const isHidden = ref(true)
+console.log('tab')
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }

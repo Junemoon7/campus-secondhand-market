@@ -79,7 +79,7 @@
                   <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500">发布时间</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500">商品状态</th>
 
-                  <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500">分类</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500"></th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                     <span class="sr-only">编辑</span>
                   </th>
@@ -91,21 +91,18 @@
                     <div class="flex items-center">
                       <div class="ml-8">
                         <div class="font-medium text-gray-900">{{ person.item.title }}</div>
-                        <div class="mt-1 text-gray-500 overflow-hidden whitespace-normal">{{ person.item.quality }}</div>
                       </div>
                     </div>
                   </td>
                   <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                    <div class="text-gray-900">{{ person.item.userName }}</div>
+                    <div class="text-gray-900">{{ person.item.user.nickName }}</div>
                     <div class="mt-1 text-gray-500">{{ person.item.telephoneNumber }}</div>
                   </td>
                   <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                    <div class="text-gray-900">{{ person.item.price }}￥</div>
-                    <div class="mt-1 text-gray-500 line-through">{{ person.item.oldPrice }}￥</div>
+                    <div class="text-gray-900">{{ person.item.minPrice }}￥~{{ person.item.maxPrice }}￥</div>
                   </td>
                   <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                     <div class="text-gray-900">{{ person.item.updateTime }}</div>
-                    <div class="mt-1 text-gray-500">{{ person.item.department }}</div>
                   </td>
 
                   <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
@@ -127,7 +124,7 @@
                     <img class="h-11 w-11 rounded-full" alt="" />
                   </div> -->
                     <div class="flex">
-                      <img :src="Imageicon.find((item) => item.cateName == person.item.cateName)?.cateIcon" alt="" class="mt-0.5 pr-1 h-5 text-gray-500" /> <span>{{ person.item.cateName }}</span>
+                      <!-- <img :src="Imageicon.find((item) => item.cateName == person.item.cateName).cateIcon" alt="" class="mt-0.5 pr-1 h-5 text-gray-500" /> <span>{{ person.item.cateName }}</span> -->
                     </div>
                   </td>
                   <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
@@ -161,27 +158,24 @@
         <el-form-item label="商品标题" :label-width="formLabelWidth">{{ form.title }} </el-form-item>
         <el-form-item label="商品价格" :label-width="formLabelWidth">
           <td class="whitespace-nowrap px-3 text-sm text-black">
-            <div class="text-gray-900">
-              {{ form.price }}￥<span class="ml-5 mt-1 text-gray-500 line-through">{{ form.oldPrice }}￥</span>
-            </div>
+            <div class="text-gray-900">{{ form.minPrice }}￥~{{ form.maxPrice }}￥</div>
           </td>
         </el-form-item>
         <el-form-item label="发布者" label-width="140px">
           <td class="whitespace-nowrap px-3 text-sm text-black">
             <div class="text-gray-900">
-              {{ form.userName }}
+              {{ form.user.nickName }}
             </div>
           </td></el-form-item
         >
         <el-form-item label="图片" label-width="140px">
-          <td class="whitespace-nowrap px-3 text-sm text-black" v-for="item in form.commodityImgList">
-            <img :src="'http://210.45.92.232:8080/' + item.imgSrc" alt="" class="h-60 mt-5" /></td
+          <td class="whitespace-nowrap px-3 text-sm text-black">
+            <img :src="'http://210.45.92.232:8080/' + form.coverImage" alt="" class="h-60 mt-5" /></td
         ></el-form-item>
+
         <el-form-item label="上传时间" label-width="140px">
           <td class="whitespace-nowrap px-3 text-sm text-black">
-            <div class="text-gray-900">
-              {{ form.updateTime }}
-            </div>
+            <div class="text-gray-900">{{ form.updateTime }}</div>
           </td></el-form-item
         >
       </el-form>
@@ -235,16 +229,7 @@ const form = ref({
   resource: '',
   desc: '',
 })
-const Imageicon = ref([])
-const getImage = () => {
-  axios.get('api/category/getAllCategory').then((res) => {
-    for (const item of res.data) {
-      Imageicon.value.push(item)
-    }
-    console.log(Imageicon)
-  })
-}
-getImage()
+const coverImage = ref()
 function handledialog(state) {
   form.value = state
   console.log(form.value)
@@ -258,20 +243,21 @@ const handeldiglogbutton = (form) => {
       type: 'warning',
     })
       .then(() => {
+        console.log(form)
         const data = new FormData()
-        data.append('commodityId', form.commodityImgList[0].commodityId)
+        data.append('seekId', form.id)
         data.append('title', form.title)
-        data.append('userId', form.userId)
-        axios.post('api/commodity/delCommodity', data)
+        data.append('userId', form.user.id)
+        axios.post('api/seek/editSeekState', data)
         ElMessage({
           type: 'success',
-          message: '删除完成',
+          message: '下架完成',
         })
       })
       .catch(() => {
         ElMessage({
           type: 'info',
-          message: '已取消删除',
+          message: '已取消下架',
         })
       })
   } else {
@@ -307,7 +293,7 @@ Form.append('limit', '1000')
 const Listdata = ref([])
 async function getProductList() {
   axios
-    .post('api/commodity/selfCommodityList', Form)
+    .post('api/seek/seekList', Form)
     .then((res) => res.data)
     .then((res) => {
       Listdata.value = res.data
@@ -327,10 +313,6 @@ const storestate = [
   {
     id: 1,
     state: '已下架',
-  },
-  {
-    id: 2,
-    state: '审核中',
   },
 ]
 const selected = ref(storestate[0].state)

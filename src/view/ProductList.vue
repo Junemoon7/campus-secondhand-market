@@ -255,13 +255,13 @@ const handeldiglogbutton = (form) => {
         axios.post('api/commodity/delCommodity', data)
         ElMessage({
           type: 'success',
-          message: '删除完成',
+          message: '下架成功',
         })
       })
-      .catch(() => {
+      .catch((err) => {
         ElMessage({
           type: 'info',
-          message: '已取消删除',
+          message: '已取消下架',
         })
       })
   } else {
