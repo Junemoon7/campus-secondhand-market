@@ -73,7 +73,7 @@
             <table class="min-w-full divide-y divide-gray-300">
               <thead class="bg-gray-100">
                 <tr class="text-center">
-                  <th scope="col" class="py-3.5 pl-8 pr-3 text-lg text-left font-semibold text-gray-500 sm:pl-8">商品</th>
+                  <th scope="col" class="py-3.5 pl-8 pr-3 text-lg text-center font-semibold text-gray-500 sm:pl-8">商品</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500">发布者</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500">价格</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-lg font-semibold text-gray-500">发布时间</th>
@@ -90,6 +90,18 @@
                   <td class="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                     <div class="flex items-center">
                       <div class="ml-8">
+                        <el-image
+                          style="width: 100px; height: 100px"
+                          :src="'http://210.45.92.232:8080/' + person.item.coverImage"
+                          :zoom-rate="1.2"
+                          :max-scale="7"
+                          :min-scale="0.2"
+                          :lazy="true"
+                          :hide-on-click-modal="true"
+                          fit="cover"
+                          :preview-src-list="['http://210.45.92.232:8080/' + person.item.coverImage]" />
+                      </div>
+                      <div class="pl-3 flex items-center flex-col justify-center w-full">
                         <div class="font-medium text-gray-900">{{ person.item.title }}</div>
                         <div class="mt-1 text-gray-500 overflow-hidden whitespace-normal">{{ person.item.quality }}</div>
                       </div>
@@ -224,6 +236,8 @@ import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } f
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const dialogFormEdit = ref(false)
 const form = ref({
   name: '',
@@ -253,6 +267,7 @@ const handeldiglogbutton = (form) => {
         data.append('title', form.title)
         data.append('userId', form.userId)
         axios.post('api/commodity/delCommodity', data)
+        router.go(0)
         ElMessage({
           type: 'success',
           message: '下架成功',
@@ -266,8 +281,8 @@ const handeldiglogbutton = (form) => {
       })
   } else {
     ElMessageBox.confirm('你确定要上架该商品吗？', '警告', {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: '上架',
+      cancelButtonText: '取消',
       type: 'warning',
     })
       .then(() => {
@@ -275,6 +290,7 @@ const handeldiglogbutton = (form) => {
         data.append('id', form.id)
         data.append('state', 0)
         axios.post('api/commodity/updateCommodityState', data)
+        router.go(0)
         ElMessage({
           type: 'success',
           message: '上架完成',

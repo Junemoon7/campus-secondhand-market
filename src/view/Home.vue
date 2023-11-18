@@ -41,12 +41,13 @@
       <div class="bg-white overflow-hidden shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <dl>
-            <dt class="text-sm leading-5 font-medium text-gray-500 truncate">Total users</dt>
+            <dt class="text-sm leading-5 font-medium text-gray-500 truncate">用户数量</dt>
             <dd class="mt-1 text-3xl leading-9 font-semibold text-indigo-600">166.7K</dd>
           </dl>
         </div>
       </div>
     </div>
+    <div class="demo-image__preview"></div>
   </div>
 </template>
 

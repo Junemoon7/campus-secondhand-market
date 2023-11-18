@@ -37,7 +37,7 @@
             <table class="min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
-                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">姓名</th>
+                  <th scope="col" class="px-3 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">姓名</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">创建时间</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
@@ -49,9 +49,6 @@
                 <tr v-for="item in userList" :key="item.id">
                   <td class="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                     <div class="flex items-center">
-                      <div class="h-11 w-11 flex-shrink-0">
-                        <img class="h-11 w-11 rounded-full" :src="item.avatarUrl" alt="" />
-                      </div>
                       <div class="ml-4">
                         <div class="font-medium text-gray-900">{{ item.nickName }}</div>
                         <div class="mt-1 text-gray-500">{{ item.openid }}</div>
@@ -90,7 +87,6 @@
       </div>
       <el-pagination v-if="showpagination" v-model:current-page="currentpage" :page-size="20" :pager-count="11" layout="prev, pager, next" :total="1000" @current-change="getUserdata" />
     </div>
-    <el-button text @click="dialogFormVisible = true"> open a Form nested Dialog </el-button>
     <el-dialog v-model="dialogFormVisible" title="" align-center width="20%">
       <el-form :model="Userform">
         <el-form-item label="类型" :label-width="formLabelWidth">

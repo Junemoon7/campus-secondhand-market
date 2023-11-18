@@ -82,16 +82,17 @@
         v-model:file-list="form.commodityImgs"
         class="upload-demo"
         drag
+        :auto-upload="false"
         multiple
         ref="uploadRef"
+        :before-upload="handleBeforeUpload"
         :http-request="uploadSumbit"
-        :auto-upload="false"
         list-type="picture"
-        @on-change="hangleChange">
+        :on-change="handleChange">
         <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-        <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
+        <div class="el-upload__text">拖拽文件 或<em> 点击上传</em></div>
         <template #tip>
-          <div class="el-upload__tip">jpg/png files with a size less than 500kb</div>
+          <div class="el-upload__tip text-center">jpg/png 文件且不大于5MB</div>
         </template>
       </el-upload>
     </el-form>
@@ -102,7 +103,7 @@
           @click="dialogFormVisible = false"
           class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-400 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
           <CheckCircleIcon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
-          confirm
+          取消
         </button>
         <button
           type="button"
@@ -119,40 +120,62 @@
 <script setup>
 import { reactive, ref, watch } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
-import { CheckCircleIcon } from '@heroicons/vue/20/solid'
+import { CheckCircleIcon, FolderMinusIcon } from '@heroicons/vue/20/solid'
 import { PlusIcon } from '@heroicons/vue/20/solid'
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
 const uploadRef = ref()
-const uploadSumbit = () => {
+const Filecount = ref(0)
+const uploadLength = ref(0)
+const uploadSumbit = (options) => {
+  Filecount.value++
+  if (Filecount.value != uploadLength.value) {
+    return
+  }
+  Filecount.value = 0
+
   const form1 = new FormData()
   form1.append('title', form.value.title)
   form1.append('categoryId', form.value.categoryId)
-  form1.append('commodityImgs', form.value.commodityImgs)
+  // const file = []
+  // form.value.commodityImgs.forEach((item) => {
+  //   file.push(item.raw)
+  //   // console.log(file)
+  // })
+  // console.log(file)
+  // form1.append('commodityImgs', options['file'])
   form1.append('price', form.value.price)
   form1.append('oldPrice', form.value.oldPrice)
   form1.append('quality', form.value.quality)
   form1.append('description', form.value.description)
-  console.log(form.value)
-  // axios.post('api/commodity/addCommodity', form1).then((res) => {
-  //   console.log(res)
-  // })
+  form.value.commodityImgs.map((item) => {
+    form1.append('commodityImgs', item.raw)
+  })
+  axios.post('api/commodity/addCommodity', form1).then((res) => {
+    console.log(res)
+  })
+
   dialogFormVisible.value = false
 }
-const hangleChange = () => {}
+const handleChange = (uploadFile, uploadFiles) => {
+  // console.log(uploadFiles)
+  uploadLength.value = uploadFiles.length
+  // console.log(uploadLength.value)
+}
 function addCommdity() {
   dialogFormVisible.value = true
   form.value = {
     title: '',
     categoryId: '0',
-    commodityImgs: '',
+    commodityImgs: [],
     price: '',
     oldPrice: '',
     quality: '',
     description: '',
   }
-  console.log(111)
+  // console.log(111)
 }
 const Imageicon = ref([])
 const getImage = () => {
@@ -160,7 +183,7 @@ const getImage = () => {
     for (const item of res.data) {
       Imageicon.value.push(item)
     }
-    console.log(Imageicon)
+    // console.log(Imageicon)
   })
 }
 // function handleBeforeUpload(file) {
@@ -168,17 +191,18 @@ const getImage = () => {
 //     const reader = new FileReader()
 
 //     reader.onload = (event) => {
-//       file.base64 = event.target.result // 将Base64字符串存储在文件对象的base64属性中
+//       file.base64 = event.target.result
 
 //       resolve(file)
 //     }
 
 //     reader.onerror = reject
 
-//     reader.readAsDataURL(file.raw) // 将二进制数据转换为Base64字符串
+//     reader.readAsDataURL(file.raw)
 //   })
 // }
 const handleBeforeUpload = (file) => {
+  // console.log('检查函数')
   // 拿到文件后缀名
   const fileType = file.name.substring(file.name.lastIndexOf('.') + 1)
   const isJpg = fileType === 'jpg'
@@ -196,21 +220,16 @@ const handleBeforeUpload = (file) => {
   }
   return isJpg || isPng || isJpeg
 }
-const handleUploadChange = (file, fileList) => {
-  form.value.commodityImgs = file
-}
+
 getImage()
 const form = ref({
   title: '',
   categoryId: '',
-  commodityImgs: '',
+  commodityImgs: [],
   price: '',
   oldPrice: '',
   quality: '',
   description: '',
-})
-watch(form.value, (val) => {
-  console.log(val)
 })
 // /commodity/addCommodity
 // title: 测试
